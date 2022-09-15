@@ -30,7 +30,7 @@ def get_n_docs(inverted_index_dict):
 
 def words_in_all_docs(inverted_index_dict):
     n_docs = get_n_docs(inverted_index_dict)
-    words = [k for k, v in inverted_index_dict if len(v) == n_docs]
+    words = [k for k, v in inverted_index_dict.items() if len(v) == n_docs]
     print("the following words are found in all docs of collection:")
     print(", ".join(words), end="\n")
     return words
