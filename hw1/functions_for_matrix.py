@@ -12,10 +12,10 @@ def most_frequent_word(inverted_index_matrix, id_term_vocab):
 
 
 def least_frequent_word(inverted_index_matrix, id_term_vocab):
-    least_freq_index = inverted_index_matrix.sum(axis=0).argmax()
+    least_freq_index = inverted_index_matrix.sum(axis=0).argmin()
     least_freq_word = id_term_vocab[least_freq_index]
     lowest_freq = inverted_index_matrix[:, least_freq_index].sum()
-    print(f"The most frequent word in the collection is {least_freq_word} with {lowest_freq} occurrences", end="\n")
+    print(f"The least frequent word in the collection is {least_freq_word} with {lowest_freq} occurrences", end="\n")
     return least_freq_word
 
 
