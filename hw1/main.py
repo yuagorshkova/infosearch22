@@ -29,3 +29,20 @@ if __name__ == "__main__":
     words_found_in_all_docs = np.delete(np.arange(inverted_index_matrix.shape[1]), words_with_zeros)
     print("the following words are found in all docs of collection:")
     print(", ".join([vocab[word_i] for word_i in words_found_in_all_docs]))
+
+    
+    character_alias_dict = {
+        "Monica": ["моника", "мон"],
+        "Rachel": ["рейчел", "рейч"],
+        "Chandler": ["чендлер", "чэндлер", "чен"],
+        "Phoebe": ["фиби", "фибс"],
+        "Ross": ["росс"],
+        "Joey": ["джоуи", "джо"],
+                            }
+    character_mention_frequencies = Counter()
+    for character in character_alias_dict:
+        aliases_indices = [vocab[a] for a in character_alias_dict[character] if a in vocab]
+        character_mention_frequencies[character] = inverted_index_matrix[:, aliases_indices].sum()
+    print(f"The most frequently mentioned character is {character_mention_frequencies.most_common(1)[0]}")
+    print("Character mentions range as follows:")
+    print(character_mention_frequencies.most_common())
