@@ -4,7 +4,6 @@ import argparse
 from setup_logger import logger
 from inverted_index import InvertedIndex
 from search import Search
-from utils import download_and_unzip
 from utils import save_pickle
 from utils import load_pickle
 
@@ -20,15 +19,11 @@ if __name__ == "__main__":
 
     if not os.path.exists(inverted_index_path):
         logger.info("Existing inverted index not found, creating a new one")
-        data_directory_path = config["Paths to files"]["data_directory_path"]
-
-        if not os.path.exists(data_directory_path):
-            remote_data_path = config["Paths to files"]["remote_data_path"]
-            final_directory_path = download_and_unzip(remote_data_path)
-            logger.info(f"Copied data from remote and extracted into {final_directory_path}")
+        data_path = config["Paths to files"]["data_path"]
+        ndocs = int(config["Constants"]["ndocs"])
 
         inverted_index = InvertedIndex()
-        inverted_index.create_corpus(data_directory_path)
+        inverted_index.create_corpus(data_path, ndocs)
         inverted_index.create_inverted_index()
         save_pickle(inverted_index, inverted_index_path)
         logger.info("Finished creating inverted index")
