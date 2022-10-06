@@ -21,7 +21,7 @@ class Search:
         :return: array of BM25 values computed between query and each document
         """
 
-        return self.inverted_index.matrix * query_vector
+        return (self.inverted_index.matrix * query_vector).toarray().ravel()
 
     def find_closest_docs(self, query: str, n: int = None):
         """
@@ -34,6 +34,6 @@ class Search:
 
         query_vector = self.get_query_vector(query)
         print(query, query_vector.shape)
-        distances = self.get_BM25_distance(query_vector)
-        sorted_indices = np.argsort(distances)[::-1][:n]
+        distances = self.get_bm25_distance(query_vector)
+        sorted_indices = np.argsort(distances)[:-n-1:-1]
         return self.inverted_index.filename_index[sorted_indices]
