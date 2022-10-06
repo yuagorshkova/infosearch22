@@ -1,4 +1,4 @@
-import os
+import json
 from setup_logger import logger
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -19,22 +19,29 @@ class InvertedIndex:
         self.matrix = None
         self.vocab = None
 
-    def create_corpus(self, data_directory: str):
+    def create_corpus(self, data_path: str, ndocs: int):
         """
-        :param data_directory: :return: Create a list of documents containing preprocessed texts, where each document
+
+        :param data_path: path to .jsnonl file with data
+        :param ndocs: number of docs to process
+        :return: Create a list of documents containing preprocessed texts, where each document
         corresponds to a file in the collection.
         """
         corpus = []
         filename_index = []
-        logger.info(f"Preprocessing texts from {data_directory} directory")
-        for root, _, files in os.walk(data_directory):
-            for filename in files:
-                filepath = os.path.join(root, filename)
-                with open(filepath, "r", encoding="utf-8") as infile:
-                    if not filename.startswith("."):
-                        episode_text = infile.read()
-                        filename_index.append(filename)
-                        corpus.append(self.preprocessor.preprocess_text(episode_text))
+        logger.info(f"Preprocessing texts from {data_path} directory")
+
+        with open(data_path, "r", encoding="utf-8") as f:
+            json_corpus = list(f)[:ndocs]
+        for i in range(ndocs):
+            question = json.loads(json_corpus[i])["question"]
+            answers = json.loads(json_corpus[i])["answers"]
+            if answers:
+                values = [a["author_rating"]["value"] for a in answers]
+                best_answer_index = np.argmax([int(v) if v else 0 for v in values])
+                text = answers[best_answer_index]["text"]
+                corpus.append(text)
+                filename_index.append(f"doc_{i}: {question}")
         self.filename_index = np.array(filename_index)
         self.corpus = corpus
 
@@ -45,7 +52,6 @@ class InvertedIndex:
         if not self.corpus:
             logger.error("Create corpus first!")
         logger.info("Creating the term-document matrix using BM25 method")
-        #
 
         tf = self.count_vectorizer.fit_transform(self.corpus)
         self.tfidf_vectorizer.fit(self.corpus)
@@ -69,3 +75,4 @@ class InvertedIndex:
         for i, j in zip(*matrix.nonzero()):
             matrix[i, j] /= (tf[i, j] + del_element[i, 0])
         self.matrix = matrix
+        
