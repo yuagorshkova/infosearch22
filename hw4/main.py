@@ -11,7 +11,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Search for the docs closest to the given query")
     parser.add_argument("query", type=str, help="query to search the docs for")
     parser.add_argument("-n", type=int, default=3, help="number of docs to print")
+    parser.add_argument('-dont_use_precalculated', dest='use_precalculated', action='store_false')
     parser.add_argument("-use_precalculated", type=bool, default=True, help="download and use precalculated embeddings")
+    parser.set_defaults(use_precalculated=True)
 
     config = configparser.ConfigParser()
     config.read("config.ini")
@@ -36,6 +38,8 @@ if __name__ == "__main__":
             inverted_index.create_inverted_index(precalculated_embeddings_url,
                                                  filename_starts_with,
                                                  n_files)
+        else:
+            inverted_index.create_inverted_index()
         save_pickle(inverted_index, inverted_index_path)
         logger.info("Finished creating inverted index")
     else:
