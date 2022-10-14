@@ -9,22 +9,22 @@ class Search:
     def __init__(self, inverted_index: InvertedIndex):
         self.inverted_index = inverted_index
 
-    def get_query_vector(self, query: str):
+    def get_query_vector(self, queries: list):
         """
         :param query:
         :return: BERT representation of the query
         """
-        preprocessed_query = self.inverted_index.preprocessor.preprocess_text(query)
-        return get_sentences_vectors([preprocessed_query],
+        preprocessed_queries = [self.inverted_index.preprocessor.preprocess_text(query) for query in queries]
+        return get_sentences_vectors(preprocessed_queries,
                                      self.inverted_index.tokenizer,
                                      self.inverted_index.model)
 
-    def get_cosine_similarity(self, query_vector: np.ndarray):
+    def get_closeness(self, query_vectors: np.ndarray):
         """
-        :param query_vector:
-        :return: array of cosine distances from query vector to the collection docs
+        :param query_vectors:
+        :return: array of cosine similarities between query vectors and the collection docs
         """
-        return cosine_similarity(self.inverted_index.matrix, query_vector).ravel()
+        return cosine_similarity(self.inverted_index.matrix, query_vectors)
 
     def find_closest_docs(self, query: str, n: int = None):
         """
@@ -35,7 +35,7 @@ class Search:
         if not n:
             n = self.inverted_index.matrix.shape[0]
 
-        query_vector = self.get_query_vector(query)
-        similarities = self.get_cosine_similarity(query_vector)
-        sorted_indices = np.argsort(similarities)[:-n-1:-1]
+        query_vector = self.get_query_vector([query])
+        closeness = self.get_closeness(query_vector).ravel()
+        sorted_indices = np.argsort(closeness)[:-n-1:-1]
         return self.inverted_index.filename_index[sorted_indices]
