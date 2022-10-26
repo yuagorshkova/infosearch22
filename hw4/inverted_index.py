@@ -39,8 +39,8 @@ class InvertedIndex:
                 values = [a["author_rating"]["value"] for a in answers]
                 best_answer_index = np.argmax([int(v) if v else 0 for v in values])
                 text = answers[best_answer_index]["text"]
-                corpus.append(text)
-                filename_index.append(f"doc_{i}: {question}")
+                corpus.append(self.preprocessor.preprocess_text(text))
+                filename_index.append(f"doc_{i}: {text}")
         self.filename_index = np.array(filename_index)
         self.corpus = corpus
 
